@@ -1,0 +1,23 @@
+{
+  "name": "sql-inv",
+  "version": "1.0.0",
+  "description": "SQL-INV: motor de consultas SQL (DSL embebido en Node.js) para inventario multi-almacén",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "seed": "node scripts/seed.js",
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test \"tests/*.test.js\"",
+    "demo:abstraccion": "node demo/js-puro-vs-sql.js",
+    "demo:motor": "node demo/swap-engine.js"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.7",
+    "express": "^4.21.2"
+  },
+  "optionalDependencies": {
+    "pg": "^8.13.1"
+  }
+}
