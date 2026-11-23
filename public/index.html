@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SQL-INV · Constructor de consultas</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <section id="login" class="login hidden">
+    <form id="login-form" class="card login-card" autocomplete="off">
+      <h1>SQL-INV</h1>
+      <p class="muted">Motor de consultas SQL para inventario multi-almacén</p>
+      <label>Usuario <input id="lg-user" required autocomplete="username"></label>
+      <label>Contraseña <input id="lg-pass" type="password" required autocomplete="current-password"></label>
+      <button class="btn primary" type="submit">Ingresar</button>
+      <p id="lg-error" class="error hidden"></p>
+      <div class="demo-users">
+        <span class="muted">Usuarios demo:</span>
+        <button type="button" class="chip" data-u="admin" data-p="admin123">admin</button>
+        <button type="button" class="chip" data-u="operario1" data-p="oper123">operario1</button>
+        <button type="button" class="chip" data-u="consulta" data-p="cons123">consulta</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <strong>SQL-INV</strong>
+      <nav id="tabs">
+        <button data-tab="builder" class="tab active">Constructor</button>
+        <button data-tab="dashboard" class="tab">Dashboard</button>
+        <button data-tab="security" class="tab">Seguridad y operación</button>
+        <button data-tab="audit" class="tab" id="tab-audit">Auditoría</button>
+      </nav>
+      <div class="who"><span id="who"></span> <span id="engine" class="chip static"></span> <button id="logout" class="btn small">Salir</button></div>
+    </header>
+
+    <main>
+      <!-- ============ CONSTRUCTOR ============ -->
+      <section id="tab-builder" class="tabpane">
+        <div class="grid2">
+          <div class="col">
+            <div class="card"><h2>1 · FROM y JOIN</h2>
+              <label>Tabla base <select id="from"></select></label>
+              <div id="joins" class="checks"></div>
+              <p class="muted small">El <code>ON</code> se deriva automáticamente de las relaciones FK de la whitelist.</p>
+            </div>
+            <div class="card"><h2>2 · SELECT (proyección y agregados)</h2>
+              <div id="select-rows"></div>
+              <button class="btn small" id="add-select">+ campo</button>
+            </div>
+            <div class="card"><h2>3 · WHERE (AND/OR anidados, 2 niveles)</h2>
+              <div id="where"></div>
+            </div>
+            <div class="card"><h2>4 · GROUP BY / HAVING</h2>
+              <label class="inline"><input type="checkbox" id="group-auto" checked> GROUP BY automático (columnas no agregadas)</label>
+              <label id="group-manual-wrap" class="hidden">Columnas <select id="group-manual" multiple size="5"></select></label>
+              <h3>HAVING</h3>
+              <div id="having-rows"></div>
+              <button class="btn small" id="add-having">+ condición HAVING</button>
+            </div>
+            <div class="card"><h2>5 · ORDER BY y LIMIT</h2>
+              <div id="order-rows"></div>
+              <button class="btn small" id="add-order">+ orden</button>
+              <label>LIMIT <input id="limit" type="number" min="1" max="1000" value="50"></label>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card sticky">
+              <h2>SQL compilado <span class="muted small">(parametrizado)</span></h2>
+              <pre id="sql" class="code">—</pre>
+              <div class="small"><strong>Parámetros:</strong> <code id="params">[]</code></div>
+              <div class="small" id="policies-applied"></div>
+              <p id="compile-error" class="error hidden"></p>
+              <div class="row">
+                <button id="run" class="btn primary">▶ Ejecutar</button>
+                <span id="run-info" class="muted small"></span>
+              </div>
+            </div>
+            <div class="card"><h2>Resultado</h2>
+              <div class="table-wrap"><table id="result-table"></table></div>
+              <div class="row chart-ctl">
+                <label>Gráfico <select id="chart-type"><option value="bar">Barras</option><option value="line">Líneas</option><option value="pie">Torta</option></select></label>
+                <label>Etiqueta <select id="chart-label"></select></label>
+                <label>Valor <select id="chart-value"></select></label>
+              </div>
+              <div class="chart-box"><canvas id="result-chart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DASHBOARD ============ -->
+      <section id="tab-dashboard" class="tabpane hidden">
+        <div class="kpis">
+          <div class="card kpi"><span class="muted">Unidades en stock</span><strong id="k-stock">—</strong></div>
+          <div class="card kpi"><span class="muted">Movimientos</span><strong id="k-mov">—</strong></div>
+          <div class="card kpi"><span class="muted">Productos</span><strong id="k-prod">—</strong></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><h2>Stock por almacén</h2><div class="chart-box"><canvas id="ch-stock"></canvas></div>
+            <details><summary>SQL (agregación)</summary><pre id="sql-stock" class="code"></pre></details></div>
+          <div class="card"><h2>Rotación por categoría <span class="muted small">(salidas / stock)</span></h2><div class="chart-box"><canvas id="ch-rot"></canvas></div>
+            <details><summary>SQL (agregación)</summary><pre id="sql-rot" class="code"></pre></details></div>
+        </div>
+      </section>
+
+      <!-- ============ SEGURIDAD Y OPERACIÓN ============ -->
+      <section id="tab-security" class="tabpane hidden">
+        <div class="grid2">
+          <div class="col">
+            <div class="card"><h2>Pruebas de ataque (se envían a la API real)</h2>
+              <p class="muted small">Cada botón envía un AST malicioso o no autorizado. Observe el código de rechazo y el estado HTTP.</p>
+              <div id="attacks" class="attacks"></div>
+              <pre id="attack-out" class="code">—</pre>
+            </div>
+            <div class="card"><h2>Políticas SQL aplicadas a mi rol</h2>
+              <ul id="policy-list" class="small"></ul>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card"><h2>Registrar movimiento</h2>
+              <p class="muted small">Admin: cualquier almacén. Operario: se fuerza su almacén. Consulta: sin permiso.</p>
+              <form id="mov-form" class="stack">
+                <label>Producto (ID) <input id="mv-prod" type="number" min="1" required></label>
+                <label id="mv-alm-wrap">Almacén (ID) <input id="mv-alm" type="number" min="1"></label>
+                <label>Tipo <select id="mv-tipo"><option>ENTRADA</option><option>SALIDA</option></select></label>
+                <label>Cantidad <input id="mv-cant" type="number" min="1" required></label>
+                <button class="btn primary" type="submit">Registrar</button>
+              </form>
+              <p id="mv-out" class="small"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AUDITORÍA ============ -->
+      <section id="tab-audit-pane" class="tabpane hidden">
+        <div class="card"><h2>Auditoría (últimos 100)</h2>
+          <div class="table-wrap"><table id="audit-table"></table></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/vendor/chart.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
