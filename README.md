@@ -68,3 +68,15 @@ Se modificó únicamente `src/db/adapters/*` (traducción `?`→`$n`, `ILIKE`, p
 * La RLS es *inyección de filtros obligatorios* (opción permitida por el enunciado); SQLite no tiene RLS nativa.
 * El validador anti-inyección es defensa en profundidad: la protección real es que los valores solo viajan como parámetros y los identificadores salen de la whitelist. Puede rechazar valores legítimos que contengan `;`, `--` o `/*`.
 * No hay expresiones aritméticas entre columnas (p. ej. `cantidad * costo`) en el DSL.
+
+## Documentación del entregable
+
+| Documento | Contenido |
+|---|---|
+| [docs/01-bases-teoricas.md](docs/01-bases-teoricas.md) | Bases teóricas y fundamentación |
+| [docs/02-justificacion-dsl.md](docs/02-justificacion-dsl.md) | Justificación del DSL |
+| [docs/03-demostracion-abstraccion.md](docs/03-demostracion-abstraccion.md) | JS puro vs SQL y cambio de motor |
+| [docs/04-metamodelo/mapeo-sintaxis.md](docs/04-metamodelo/mapeo-sintaxis.md) | Metamodelo UML, OCL y mapeo a SQL |
+| [docs/05-requisitos/](docs/05-requisitos/) | Caso de uso y 3 historias de usuario (Given/When/Then) |
+| [docs/06-guion-demo.md](docs/06-guion-demo.md) | Guion de demo y casos borde |
+| [docs/07-reparto-equipo.md](docs/07-reparto-equipo.md) | Reparto de archivos y orden de commits (4 integrantes) |
