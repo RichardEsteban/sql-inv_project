@@ -79,4 +79,3 @@ Se modificó únicamente `src/db/adapters/*` (traducción `?`→`$n`, `ILIKE`, p
 | [docs/04-metamodelo/mapeo-sintaxis.md](docs/04-metamodelo/mapeo-sintaxis.md) | Metamodelo UML, OCL y mapeo a SQL |
 | [docs/05-requisitos/](docs/05-requisitos/) | Caso de uso y 3 historias de usuario (Given/When/Then) |
 | [docs/06-guion-demo.md](docs/06-guion-demo.md) | Guion de demo y casos borde |
-| [docs/07-reparto-equipo.md](docs/07-reparto-equipo.md) | Reparto de archivos y orden de commits (4 integrantes) |
